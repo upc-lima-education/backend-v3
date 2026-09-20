@@ -1,0 +1,11 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/out
+**/appsettings.Development.json
+**/.local-chromium
+Dockerfile
+.dockerignore

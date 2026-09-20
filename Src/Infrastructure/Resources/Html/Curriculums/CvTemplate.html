@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Currículum Vitae</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm 18mm 18mm 18mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000000;
+            background: #FFFFFF;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .cv {
+            width: 100%;
+        }
+
+        /* ==============================
+           HEADER
+           ============================== */
+
+        .cv-header {
+            margin-bottom: 24px;
+        }
+
+        .cv-header h1 {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .cv-header .headline {
+            margin: 4px 0 10px;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .cv-header .contact {
+            margin: 0;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        /* ==============================
+           SECTIONS
+           ============================== */
+
+        .cv-section {
+            margin-bottom: 20px;
+        }
+
+        .cv-section h2 {
+            margin: 0 0 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #000000;
+
+            font-size: 15px;
+            line-height: 1.3;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* ==============================
+           TEXT SECTIONS
+           ============================== */
+
+        .cv-text-section p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ==============================
+           EXPERIENCE
+           ============================== */
+
+        .experience-item {
+            margin-bottom: 16px;
+        }
+
+        .experience-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .experience-header {
+            width: 100%;
+        }
+
+        .experience-item h3 {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .experience-item .employer {
+            margin: 2px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .experience-item .dates {
+            margin: 2px 0 0;
+            font-size: 10px;
+        }
+
+        .experience-item .description {
+            margin: 5px 0 0;
+            line-height: 1.5;
+        }
+
+        /* ==============================
+           EDUCATION
+           ============================== */
+
+        .education-item {
+            margin-bottom: 16px;
+        }
+
+        .education-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .education-item h3 {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .education-item .institution {
+            margin: 2px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .education-item .dates {
+            margin: 2px 0 0;
+            font-size: 10px;
+        }
+
+        .education-item .academic-level {
+            margin: 4px 0 0;
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        .education-item .academic-progress {
+            margin: 3px 0 0;
+            font-size: 10px;
+        }
+
+        /* ==============================
+           CUSTOM
+           ============================== */
+
+        .cv-custom .description {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ==============================
+           PRINT
+           ============================== */
+
+        .experience-item, .education-item, .cv-section {
+            break-inside: avoid;
+        }
+
+        h1, h2, h3 {
+            break-after: avoid;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="cv">
+        {{CONTENT}}
+    </main>
+</body>
+
+</html>
