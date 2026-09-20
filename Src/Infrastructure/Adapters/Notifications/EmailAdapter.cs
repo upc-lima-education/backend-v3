@@ -47,8 +47,9 @@ public class EmailAdapter(IOptions<EmailOptions> options) : IEmailPort
             await smtp.DisconnectAsync(true);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[EmailError] Failed to send email: {ex.Message}");
             return false;
         }
     }
