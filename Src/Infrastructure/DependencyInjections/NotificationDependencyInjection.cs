@@ -3,7 +3,7 @@ using Backend.Src.Application.UseCases.Notifications;
 using Backend.Src.Application.Validators.Notifications;
 using Backend.Src.Domain.Ports.Notifications;
 using Backend.Src.Domain.Repositories.Notifications;
-using Backend.Src.Infrastructure.Adapters.Notifications;
+using Backend.Src.Infrastructure.Adapters.Notifications.Resend;
 using Backend.Src.Infrastructure.Adapters.Notifications.Twilio;
 using Backend.Src.Infrastructure.Options.Notifications;
 using Backend.Src.Infrastructure.Persistence.PostgreSql.Repositories.Notifications;
@@ -24,7 +24,8 @@ public static class NotificationDependencyInjection
 
         // Adapters        
         services.AddScoped<INotificationPort, TwilioWhatsAppAdapter>();
-        services.AddScoped<IEmailPort, EmailAdapter>();
+        services.AddScoped<IEmailPort, ResendEmailAdapter>();
+        //services.AddScoped<IEmailPort, EmailAdapter>();
 
         //Fluent Validation
         services.AddScoped<IValidator<SendNotificationRequest>, NotificationValidator>();
