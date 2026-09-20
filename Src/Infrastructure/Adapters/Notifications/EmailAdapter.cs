@@ -41,7 +41,7 @@ public class EmailAdapter(IOptions<EmailOptions> options) : IEmailPort
             email.Body = body;
 
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(_options.Host, _options.Port, SecureSocketOptions.StartTls);
+            await smtp.ConnectAsync(_options.Host, _options.Port, SecureSocketOptions.Auto);
             await smtp.AuthenticateAsync(_options.Username, _options.Password);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
