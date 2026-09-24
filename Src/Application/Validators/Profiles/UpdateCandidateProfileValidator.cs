@@ -20,7 +20,7 @@ internal sealed class UpdateCandidateProfileValidator : AbstractValidator<Update
             .MaximumLength(MaxNameLength).WithMessage($"Last name must be at most {MaxNameLength} characters long");
         RuleFor(x => x.Dni)
             .Matches(@"^\d{8}$")
-            .When(x => x.Dni is not null)
+            .When(x => !string.IsNullOrWhiteSpace(x.Dni))
             .WithMessage("DNI must contain exactly 8 digits");
         RuleFor(x => x.PhoneNumber)
             .Matches(@"^\+[1-9]\d{6,14}$")

@@ -37,7 +37,7 @@ public class CandidateProfile
         Profile = profile;
         FirstName = firstName;
         LastName = lastName;
-        Dni = dni;
+        Dni = string.IsNullOrWhiteSpace(dni) ? null : dni.Trim();
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -50,7 +50,7 @@ public class CandidateProfile
     {
         FirstName = firstName;
         LastName = lastName;
-        Dni = dni;
+        Dni = string.IsNullOrWhiteSpace(dni) ? null : dni.Trim();
         UpdatedAt = DateTime.UtcNow;
     }
 

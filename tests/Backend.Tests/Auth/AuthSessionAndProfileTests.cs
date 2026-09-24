@@ -10,6 +10,10 @@ using Backend.Src.Domain.Exceptions.Profiles;
 using Backend.Src.Domain.Ports.Auth;
 using Backend.Src.Domain.Repositories.Auth;
 using Backend.Src.Domain.Repositories.Profiles;
+using Backend.Src.Api.Rest.Controllers.Auth;
+using Backend.Src.Application.Dtos.Responses.Auth;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Xunit;
 
@@ -180,5 +184,40 @@ public class AuthSessionAndProfileTests
         Assert.NotNull(result.User.ProfileId);
         Assert.NotEqual(Guid.Empty, result.User.ProfileId);
         await profileRepo.Received(1).CreateAsync(Arg.Is<Profile>(p => p.CompanyProfile != null));
+    }
+
+    [Fact]
+    public async Task AuthenticationController_SignUp_ReturnsStatusCode201WithResponseBody()
+    {
+        // Arrange
+        var userRepo = Substitute.For<IUserRepository>();
+        var hashPort = Substitute.For<IPasswordHashPort>();
+        var jwtPort = Substitute.For<IJwtPort>();
+        var tokenRepo = Substitute.For<IRefreshTokenRepository>();
+        var profileRepo = Substitute.For<IProfileRepository>();
+        var validator = Substitute.For<FluentValidation.IValidator<SignUpRequest>>();
+        validator.ValidateAsync(Arg.Any<SignUpRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new FluentValidation.Results.ValidationResult());
+
+        userRepo.GetByEmailAsync("candidate@test.com").Returns((User?)null);
+        hashPort.HashPassword("Password123!").Returns("hashed_pwd");
+        jwtPort.GenerateAccessToken(Arg.Any<User>()).Returns("access_token_123");
+        jwtPort.GenerateRefreshToken(Arg.Any<Guid>()).Returns(new GeneratedRefreshToken("ref_token", "jti_123", TimeSpan.FromDays(7)));
+
+        var bootstrapProfile = new ExternalCreateProfileUseCase(profileRepo);
+        var signUpUseCase = new SignUpUseCase(userRepo, hashPort, jwtPort, tokenRepo, validator, bootstrapProfile);
+
+        var controller = new AuthenticationController(null!, signUpUseCase, null!, null!);
+
+        // Act
+        var actionResult = await controller.SignUp(new SignUpRequest("candidate@test.com", "Password123!", Backend.Src.Application.Dtos.Enums.Profiles.ProfileType.Candidate));
+
+        // Assert
+        var statusResult = Assert.IsType<ObjectResult>(actionResult.Result);
+        Assert.Equal(StatusCodes.Status201Created, statusResult.StatusCode);
+        var response = Assert.IsType<AuthenticationResponse>(statusResult.Value);
+        Assert.NotNull(response);
+        Assert.Equal("access_token_123", response.AccessToken);
+        Assert.Equal("Candidate", response.User.ProfileType);
     }
 }

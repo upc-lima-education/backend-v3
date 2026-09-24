@@ -9,5 +9,6 @@ public record UpdateCompanyProfileRequest(
     string? CompanyName,
     string? Sector,
     string? Website,
-    string? CompanySize
+    string? CompanySize,
+    string? Ruc = null
 );

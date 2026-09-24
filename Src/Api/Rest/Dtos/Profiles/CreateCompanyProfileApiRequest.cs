@@ -9,7 +9,7 @@ public record CreateCompanyProfileApiRequest(
     //Company Data
     string CompanyName,
     string? Sector,
-    string Ruc,
+    string? Ruc,
     string? Website,
     string? CompanySize,
     IFormFile? ProfilePicture

@@ -29,6 +29,10 @@ internal sealed class UpdateCompanyProfileValidator : AbstractValidator<UpdateCo
             .Must(BeAValidCompanySize)
             .When(x => !string.IsNullOrWhiteSpace(x.CompanySize))
             .WithMessage("Company size is not supported.");
+        RuleFor(x => x.Ruc!)
+            .Must(BeAValidRuc)
+            .When(x => !string.IsNullOrWhiteSpace(x.Ruc))
+            .WithMessage("The RUC is mathematically invalid or has an incorrect format.");
     }
 
     private static bool BeAValidWebsite(string? value) =>
@@ -36,4 +40,36 @@ internal sealed class UpdateCompanyProfileValidator : AbstractValidator<UpdateCo
         && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
     private static bool BeAValidCompanySize(string? value) => value is "1-10" or "11-50" or "51-200" or "201-500" or "501+";
+
+    private static bool BeAValidRuc(string ruc)
+    {
+        if (string.IsNullOrWhiteSpace(ruc) || ruc.Length != 11 || !ruc.All(char.IsDigit))
+            return false;
+
+        if (!ruc.StartsWith("10") && !ruc.StartsWith("15") &&
+            !ruc.StartsWith("17") && !ruc.StartsWith("20"))
+            return false;
+
+        ReadOnlySpan<int> factors = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+        var sum = 0;
+
+        for (var i = 0; i < 10; i++)
+        {
+            sum += (ruc[i] - '0') * factors[i];
+        }
+
+        var remainder = sum % 11;
+        var check = 11 - remainder;
+
+        check = check switch
+        {
+            10 => 0,
+            11 => 1,
+            _ => check
+        };
+
+        var lastDigit = ruc[10] - '0';
+
+        return check == lastDigit;
+    }
 }

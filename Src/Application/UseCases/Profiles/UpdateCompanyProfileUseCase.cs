@@ -29,11 +29,16 @@ public class UpdateCompanyProfileUseCase(
             null //Skills
         );
 
+        var rucToUpdate = request.Ruc != null
+            ? (string.IsNullOrWhiteSpace(request.Ruc) ? null : request.Ruc.Trim())
+            : profile.CompanyProfile.Ruc;
+
         profile.CompanyProfile.Update(
             request.CompanyName ?? profile.CompanyProfile.CompanyName,
             request.Sector ?? profile.CompanyProfile.Sector,
             request.Website ?? profile.CompanyProfile.Website,
-            request.CompanySize ?? profile.CompanyProfile.CompanySize
+            request.CompanySize ?? profile.CompanyProfile.CompanySize,
+            rucToUpdate
         );
 
         await profileRepository.UpdateAsync(profile);

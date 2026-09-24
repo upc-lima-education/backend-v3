@@ -4,6 +4,9 @@ using Backend.Src.Application.Dtos.Data.Profiles;
 using Backend.Src.Application.Dtos.Responses.Profiles;
 using Backend.Src.Application.Mappers.Profiles;
 using Backend.Src.Application.UseCases.Profiles;
+using Backend.Src.Application.Dtos.Enums.Profiles;
+using Backend.Src.Application.Dtos.Requests.Profiles;
+using Backend.Src.Application.Validators.Profiles;
 using Backend.Src.Domain.Entities.Profiles;
 using Backend.Src.Domain.Entities.Skills;
 using Backend.Src.Domain.Exceptions.Profiles;
@@ -354,5 +357,103 @@ public class ProfileMappingAndUseCaseTests
         Assert.True(root.GetProperty("isComplete").GetBoolean());
         Assert.Equal("2026-08-30T00:00:00Z", root.GetProperty("createdAt").GetString());
         Assert.Equal("2026-08-30T00:00:00Z", root.GetProperty("updatedAt").GetString());
+    }
+
+    [Fact]
+    public void CompanyProfile_Update_WithValidRuc_UpdatesRucAndResetsVerification()
+    {
+        var profile = new Profile(Guid.NewGuid(), "Desc", "150101", null, "999888777", null);
+        var company = new CompanyProfile(profile.Id, profile, "Tech SAC", "IT", "20123456789", "https://tech.pe", "11-50");
+        company.VerifyCompany(Guid.NewGuid());
+        Assert.True(company.IsVerified);
+
+        company.Update("Tech SAC Renamed", "Fintech", "https://tech.pe", "51-200", "20600055519");
+
+        Assert.Equal("20600055519", company.Ruc);
+        Assert.False(company.IsVerified);
+        Assert.Null(company.VerifiedAt);
+    }
+
+    [Fact]
+    public void CompanyProfile_Update_WithNullOrWhitespaceRuc_SetsRucToNull()
+    {
+        var profile = new Profile(Guid.NewGuid(), "Desc", "150101", null, "999888777", null);
+        var company = new CompanyProfile(profile.Id, profile, "Tech SAC", "IT", "20123456789", "https://tech.pe", "11-50");
+
+        company.Update("Tech SAC", "IT", "https://tech.pe", "11-50", "   ");
+
+        Assert.Null(company.Ruc);
+    }
+
+    [Fact]
+    public void UpdateCompanyProfileValidator_WithNullOrEmptyRuc_IsValid()
+    {
+        var validator = new UpdateCompanyProfileValidator();
+        var request = new UpdateCompanyProfileRequest("Desc", "150101", "+51999888777", "Mi Empresa", "Software", "https://empresa.com", "1-10", null);
+
+        var result = validator.Validate(request);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void UpdateCompanyProfileValidator_WithInvalidRuc_ReturnsValidationError()
+    {
+        var validator = new UpdateCompanyProfileValidator();
+        var request = new UpdateCompanyProfileRequest("Desc", "150101", "+51999888777", "Mi Empresa", "Software", "https://empresa.com", "1-10", "12345");
+
+        var result = validator.Validate(request);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == "Ruc");
+    }
+
+    [Fact]
+    public async Task ExternalCreateProfileUseCase_WhenCompanyRole_BootstrapsWithNullRuc()
+    {
+        var profileRepository = Substitute.For<IProfileRepository>();
+        profileRepository.GetByUserIdForUpdateAsync(Arg.Any<Guid>()).Returns((Profile?)null);
+
+        var useCase = new ExternalCreateProfileUseCase(profileRepository);
+        var result = await useCase.ExecuteAsync(new ExternalCreateProfileRequest(Guid.NewGuid(), ProfileType.Company, "Acme", "Corp", ""));
+
+        Assert.NotNull(result.CompanyProfile);
+        Assert.Null(result.CompanyProfile.Ruc);
+    }
+
+    [Fact]
+    public async Task ExternalCreateProfileUseCase_WhenCandidateRole_BootstrapsWithNullDni()
+    {
+        var profileRepository = Substitute.For<IProfileRepository>();
+        profileRepository.GetByUserIdForUpdateAsync(Arg.Any<Guid>()).Returns((Profile?)null);
+
+        var useCase = new ExternalCreateProfileUseCase(profileRepository);
+        var result = await useCase.ExecuteAsync(new ExternalCreateProfileRequest(Guid.NewGuid(), ProfileType.Candidate, "Juan", "Perez", ""));
+
+        Assert.NotNull(result.CandidateProfile);
+        Assert.Null(result.CandidateProfile.Dni);
+    }
+
+    [Fact]
+    public void UpdateCandidateProfileValidator_WithNullOrEmptyDni_IsValid()
+    {
+        var validator = new UpdateCandidateProfileValidator();
+        var request = new UpdateCandidateProfileRequest("Desc", "150101", "+51999888777", null, "Juan", "Perez", "");
+
+        var result = validator.Validate(request);
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void UpdateCandidateProfileValidator_WithInvalidDni_ReturnsValidationError()
+    {
+        var validator = new UpdateCandidateProfileValidator();
+        var request = new UpdateCandidateProfileRequest("Desc", "150101", "+51999888777", null, "Juan", "Perez", "123");
+
+        var result = validator.Validate(request);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == "Dni");
     }
 }

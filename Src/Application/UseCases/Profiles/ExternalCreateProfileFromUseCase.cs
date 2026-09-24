@@ -42,7 +42,7 @@ public class ExternalCreateProfileUseCase(IProfileRepository profileRepository)
                 profile,
                 companyName,
                 string.Empty, //Sector
-                string.Empty, //Ruc
+                null, //Ruc
                 null, //Website
                 null //CompanySize
             );
@@ -54,7 +54,7 @@ public class ExternalCreateProfileUseCase(IProfileRepository profileRepository)
                 profile,
                 request.FirstName,
                 request.LastName,
-                string.Empty //dni
+                null //dni
             );
         }
 

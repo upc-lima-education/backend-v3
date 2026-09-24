@@ -35,7 +35,7 @@ public class CompanyProfile
         Profile = profile;
         CompanyName = companyName;
         Sector = sector;
-        Ruc = ruc;
+        Ruc = string.IsNullOrWhiteSpace(ruc) ? null : ruc.Trim();
         Website = website;
         CompanySize = companySize;
         CreatedAt = DateTime.UtcNow;
@@ -47,13 +47,24 @@ public class CompanyProfile
         string companyName,
         string? sector,
         string? website,
-        string? companySize
+        string? companySize,
+        string? ruc = null
     )
     {
         CompanyName = companyName;
         Sector = sector;
         Website = website;
         CompanySize = companySize;
+
+        var cleanRuc = string.IsNullOrWhiteSpace(ruc) ? null : ruc.Trim();
+        if (Ruc != cleanRuc)
+        {
+            Ruc = cleanRuc;
+            IsVerified = false;
+            VerifiedAt = null;
+            VerifiedByUserId = null;
+        }
+
         UpdatedAt = DateTime.UtcNow;
     }
 

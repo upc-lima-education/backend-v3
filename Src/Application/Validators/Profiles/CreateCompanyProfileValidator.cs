@@ -16,9 +16,10 @@ internal sealed class CreateCompanyProfileValidator : AbstractValidator<CreateCo
             .Matches(@"^\+[1-9]\d{6,14}$")
                 .When(x => x.PhoneNumber is not null)
                 .WithMessage("Must be a valid phone number");
-        RuleFor(x => x.Ruc)
-            .NotEmpty().WithMessage("RUC cannot be empty")
-            .Must(BeAValidRuc).WithMessage("The RUC is mathematically invalid or has an incorrect format.");
+        RuleFor(x => x.Ruc!)
+            .Must(BeAValidRuc)
+            .When(x => !string.IsNullOrWhiteSpace(x.Ruc))
+            .WithMessage("The RUC is mathematically invalid or has an incorrect format.");
         AddCorporateDetailsRules();
     }
 

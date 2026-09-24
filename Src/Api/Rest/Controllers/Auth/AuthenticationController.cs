@@ -26,7 +26,7 @@ public class AuthenticationController(
     public async Task<ActionResult<AuthenticationResponse>> SignUp(SignUpRequest request)
     {
         var response = await signUpUseCase.ExecuteAsync(request);
-        return CreatedAtAction(nameof(GetCurrentUser), response);
+        return StatusCode(StatusCodes.Status201Created, response);
     }
 
     [HttpPost("sign-in")]

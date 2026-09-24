@@ -8,7 +8,7 @@ public record CreateCompanyProfileRequest(
     //CompanyData
     string CompanyName,
     string? Sector,
-    string Ruc,
+    string? Ruc,
     string? Website,
     string? CompanySize,
     UploadProfilePictureRequest? ProfilePicture

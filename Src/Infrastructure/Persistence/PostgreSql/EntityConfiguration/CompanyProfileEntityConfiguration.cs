@@ -57,6 +57,7 @@ public sealed class CompanyProfileConfiguration : IEntityTypeConfiguration<Compa
             .OnDelete(DeleteBehavior.SetNull);
 
         entity.HasIndex(o => o.Ruc)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"Ruc\" IS NOT NULL");
     }
 }
