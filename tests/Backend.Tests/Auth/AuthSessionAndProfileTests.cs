@@ -1,6 +1,4 @@
-using Backend.Src.Application.Dtos.Data.Auth;
 using Backend.Src.Application.Dtos.Requests.Auth;
-using Backend.Src.Application.Dtos.Requests.Profiles;
 using Backend.Src.Application.UseCases.Auth;
 using Backend.Src.Application.UseCases.Profiles;
 using Backend.Src.Domain.Contracts.Auth;
@@ -15,7 +13,7 @@ using Backend.Src.Application.Dtos.Responses.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
-using Xunit;
+using Backend.Src.Application.Dtos.Enums.Profiles;
 
 namespace Backend.Tests.Auth;
 
@@ -32,8 +30,8 @@ public class AuthSessionAndProfileTests
         var profileRepo = Substitute.For<IProfileRepository>();
 
         var user = new User("user@test.com", true, "hashed_pwd");
-        var profile = new Profile(user.Id, "Candidate profile", "150101", null, "999888777", []);
-        var candidate = new CandidateProfile(profile.Id, profile, "Ana", "Lopez", null);
+        var profile = new Profile(user.Id);
+        var candidate = new CandidateProfile(profile.Id, profile);
         profile.CandidateProfile = candidate;
 
         userRepo.GetByEmailAsync("user@test.com").Returns(user);
@@ -49,7 +47,7 @@ public class AuthSessionAndProfileTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Candidate", result.User.ProfileType);
+        Assert.Equal(ProfileType.Candidate, result.User.ProfileType);
         Assert.Equal(profile.Id, result.User.ProfileId);
         Assert.Equal("access_token_xyz", result.AccessToken);
     }
@@ -62,8 +60,8 @@ public class AuthSessionAndProfileTests
         var profileRepo = Substitute.For<IProfileRepository>();
 
         var user = new User("company@test.com", true, "hashed_pwd");
-        var profile = new Profile(user.Id, "Company profile", "150101", null, "999888777", []);
-        var company = new CompanyProfile(profile.Id, profile, "Tech Inc", "Tech", "20123456789", null, null);
+        var profile = new Profile(user.Id);
+        var company = new CompanyProfile(profile.Id, profile);
         profile.CompanyProfile = company;
 
         userRepo.GetByIdAsync(user.Id).Returns(user);
@@ -76,7 +74,7 @@ public class AuthSessionAndProfileTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Company", result.ProfileType);
+        Assert.Equal(ProfileType.Company, result.ProfileType);
         Assert.Equal(profile.Id, result.ProfileId);
     }
 
@@ -86,8 +84,10 @@ public class AuthSessionAndProfileTests
         // Arrange
         var profileRepo = Substitute.For<IProfileRepository>();
         var userId = Guid.NewGuid();
-        var profile = new Profile(userId, "Mi perfil", "150101", null, "999888777", []);
-        var candidate = new CandidateProfile(profile.Id, profile, "Maria", "Perez", null);
+        var profile = new Profile(userId);
+        profile.Update("Description", "150101", "999888777", null);
+        var candidate = new CandidateProfile(profile.Id, profile);
+        candidate.Update("Maria", "Perez", null);
         profile.CandidateProfile = candidate;
 
         profileRepo.GetByUserIdAsync(userId).Returns(profile);
@@ -110,8 +110,10 @@ public class AuthSessionAndProfileTests
         // Arrange
         var profileRepo = Substitute.For<IProfileRepository>();
         var userId = Guid.NewGuid();
-        var profile = new Profile(userId, "Company profile", "150101", null, "999888777", []);
-        var company = new CompanyProfile(profile.Id, profile, "My Company SAC", "Tech", "20123456789", null, null);
+        var profile = new Profile(userId);
+        profile.Update("Description", "150101", "999888777", null);
+        var company = new CompanyProfile(profile.Id, profile);
+        company.Update("My Company SAC", "Tech", "20123456789", null, null);
         profile.CompanyProfile = company;
 
         profileRepo.GetByIdForUpdateAsync(profile.Id).Returns(profile);
@@ -140,7 +142,7 @@ public class AuthSessionAndProfileTests
         jwtPort.GenerateAccessToken(Arg.Any<User>()).Returns("access_token_123");
         jwtPort.GenerateRefreshToken(Arg.Any<Guid>()).Returns(new GeneratedRefreshToken("ref_token", "jti_123", TimeSpan.FromDays(7)));
 
-        var bootstrapProfile = new ExternalCreateProfileUseCase(profileRepo);
+        var bootstrapProfile = new CreateProfileUseCase(profileRepo);
         var useCase = new SignUpUseCase(userRepo, hashPort, jwtPort, tokenRepo, validator, bootstrapProfile);
 
         // Act
@@ -148,8 +150,7 @@ public class AuthSessionAndProfileTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Candidate", result.User.ProfileType);
-        Assert.NotNull(result.User.ProfileId);
+        Assert.Equal(ProfileType.Candidate, result.User.ProfileType);
         Assert.NotEqual(Guid.Empty, result.User.ProfileId);
         await profileRepo.Received(1).CreateAsync(Arg.Is<Profile>(p => p.CandidateProfile != null));
     }
@@ -172,7 +173,7 @@ public class AuthSessionAndProfileTests
         jwtPort.GenerateAccessToken(Arg.Any<User>()).Returns("access_token_123");
         jwtPort.GenerateRefreshToken(Arg.Any<Guid>()).Returns(new GeneratedRefreshToken("ref_token", "jti_123", TimeSpan.FromDays(7)));
 
-        var bootstrapProfile = new ExternalCreateProfileUseCase(profileRepo);
+        var bootstrapProfile = new CreateProfileUseCase(profileRepo);
         var useCase = new SignUpUseCase(userRepo, hashPort, jwtPort, tokenRepo, validator, bootstrapProfile);
 
         // Act
@@ -180,8 +181,7 @@ public class AuthSessionAndProfileTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Company", result.User.ProfileType);
-        Assert.NotNull(result.User.ProfileId);
+        Assert.Equal(ProfileType.Company, result.User.ProfileType);
         Assert.NotEqual(Guid.Empty, result.User.ProfileId);
         await profileRepo.Received(1).CreateAsync(Arg.Is<Profile>(p => p.CompanyProfile != null));
     }
@@ -204,7 +204,7 @@ public class AuthSessionAndProfileTests
         jwtPort.GenerateAccessToken(Arg.Any<User>()).Returns("access_token_123");
         jwtPort.GenerateRefreshToken(Arg.Any<Guid>()).Returns(new GeneratedRefreshToken("ref_token", "jti_123", TimeSpan.FromDays(7)));
 
-        var bootstrapProfile = new ExternalCreateProfileUseCase(profileRepo);
+        var bootstrapProfile = new CreateProfileUseCase(profileRepo);
         var signUpUseCase = new SignUpUseCase(userRepo, hashPort, jwtPort, tokenRepo, validator, bootstrapProfile);
 
         var controller = new AuthenticationController(null!, signUpUseCase, null!, null!);
@@ -218,6 +218,6 @@ public class AuthSessionAndProfileTests
         var response = Assert.IsType<AuthenticationResponse>(statusResult.Value);
         Assert.NotNull(response);
         Assert.Equal("access_token_123", response.AccessToken);
-        Assert.Equal("Candidate", response.User.ProfileType);
+        Assert.Equal(ProfileType.Candidate, response.User.ProfileType);
     }
 }

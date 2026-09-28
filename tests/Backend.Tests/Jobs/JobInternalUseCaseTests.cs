@@ -19,18 +19,16 @@ public class JobInternalUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Empresa de tecnología líder",
             "150101",
-            "profiles/company-logo.png",
             "999111222",
             [new Skill("C#"), new Skill(".NET")]
         );
 
-        var companyProfile = new CompanyProfile(
-            profile.Id,
-            profile,
+        var companyProfile = new CompanyProfile(profile.Id, profile);
+        companyProfile.Update(
             "Tech Solutions SAC",
             "Tecnología",
             "20601234567",
@@ -122,18 +120,16 @@ public class JobInternalUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Empresa sin logo todavía",
             "150101",
-            null,
             "999111222",
             [new Skill("C#")]
         );
 
-        var companyProfile = new CompanyProfile(
-            profile.Id,
-            profile,
+        var companyProfile = new CompanyProfile(profile.Id, profile);
+        companyProfile.Update(
             "Startup Nova",
             "Tecnología",
             "20609876543",
@@ -182,18 +178,16 @@ public class JobInternalUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Empresa de tecnología líder",
             "150101",
-            "profiles/company-logo.png",
             "999111222",
             [new Skill("C#"), new Skill(".NET")]
         );
 
-        var companyProfile = new CompanyProfile(
-            profile.Id,
-            profile,
+        var companyProfile = new CompanyProfile(profile.Id, profile);
+        companyProfile.Update(
             "Tech Solutions SAC",
             "Tecnología",
             "20601234567",

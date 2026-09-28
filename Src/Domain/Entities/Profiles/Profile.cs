@@ -23,22 +23,24 @@ public class Profile
 
     public Profile() {}
 
+    //For internal user auth
+    public Profile(Guid userId)
+    {
+        Id = Guid.NewGuid();
+        UserId = userId;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    //For external user auth
     public Profile(
         Guid userId,
-        string? description,
-        string? ubigeo,
-        string? profilePicture,
-        string? phoneNumber,
-        List<Skill>? skills
+        string? profilePicture
     )
     {
         Id = Guid.NewGuid();
         UserId = userId;
-        Description = description;
-        Ubigeo = ubigeo;
         ProfilePicture = profilePicture;
-        PhoneNumber = phoneNumber;
-        if(skills is not null) UpdateSkills(skills);
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }

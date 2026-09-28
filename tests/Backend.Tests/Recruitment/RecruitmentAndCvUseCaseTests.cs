@@ -11,7 +11,6 @@ using Backend.Src.Domain.Repositories.Profiles;
 using Backend.Src.Domain.Repositories.Recruitment;
 using Backend.Src.Domain.ValueObjects.Jobs;
 using NSubstitute;
-using Xunit;
 
 namespace Backend.Tests.Recruitment;
 
@@ -26,8 +25,19 @@ public class RecruitmentAndCvUseCaseTests
         var profileRepo = Substitute.For<IProfileRepository>();
 
         var userId = Guid.NewGuid();
-        var profile = new Profile(userId, "Candidate", "150101", null, "999888777", []);
-        var candidate = new CandidateProfile(profile.Id, profile, "Lucia", "Ramos", null);
+        var profile = new Profile(userId);
+        profile.Update(
+            "Candidate",
+            "150101",
+            "999888777",
+            null
+        );
+        var candidate = new CandidateProfile(profile.Id, profile);
+        candidate.Update(
+            "Lucia",
+            "Ramos",
+            null
+        );
         profile.CandidateProfile = candidate;
 
         var jobId = Guid.NewGuid();
@@ -84,8 +94,21 @@ public class RecruitmentAndCvUseCaseTests
         var profileRepo = Substitute.For<IProfileRepository>();
 
         var companyUserId = Guid.NewGuid();
-        var companyProfile = new Profile(companyUserId, "Company", "150101", null, "999111222", []);
-        var company = new CompanyProfile(companyProfile.Id, companyProfile, "Dev Corp", "Tech", "20123456789", null, null);
+        var companyProfile = new Profile(companyUserId);
+        companyProfile.Update(
+            "Company",
+            "150101",
+            "999111222",
+            []
+        );
+        var company = new CompanyProfile(companyProfile.Id, companyProfile);
+        company.Update(
+            "Dev Corp",
+            "Tech",
+            "20123456789",
+            null,
+            null
+        );
         companyProfile.CompanyProfile = company;
 
         var jobId = Guid.NewGuid();
@@ -114,8 +137,14 @@ public class RecruitmentAndCvUseCaseTests
         );
 
         var candidateUserId = Guid.NewGuid();
-        var candidateProfile = new Profile(candidateUserId, "Candidate", "150101", "avatar.jpg", "999444333", [new Skill("React")]);
-        var candidate = new CandidateProfile(candidateProfile.Id, candidateProfile, "Sofia", "Vargas", null);
+        var candidateProfile = new Profile(candidateUserId);
+        
+        var candidate = new CandidateProfile(candidateProfile.Id, candidateProfile);
+        candidate.Update(
+            "Sofia",
+            "Vargas",
+            null
+        );
         candidateProfile.CandidateProfile = candidate;
 
         var application = new JobApplication(jobId, candidateProfile.Id, "key/cv.pdf");
@@ -149,8 +178,19 @@ public class RecruitmentAndCvUseCaseTests
         var profileRepo = Substitute.For<IProfileRepository>();
 
         var userId = Guid.NewGuid();
-        var profile = new Profile(userId, "Candidate", "150101", null, "999888777", []);
-        var candidate = new CandidateProfile(profile.Id, profile, "Pedro", "Gomez", null);
+        var profile = new Profile(userId);
+        profile.Update(
+            "Candidate",
+            "150101",
+            "999888777",
+            null
+        );
+        var candidate = new CandidateProfile(profile.Id, profile);
+        candidate.Update(
+            "Pedro",
+            "Gomez",
+            null
+        );
         profile.CandidateProfile = candidate;
 
         var cv1 = new Cv(profile.Id, "CV Desarrollador .NET", true);

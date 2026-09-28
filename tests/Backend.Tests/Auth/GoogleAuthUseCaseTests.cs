@@ -11,54 +11,19 @@ using Backend.Src.Domain.Repositories.Profiles;
 using Backend.Src.Infrastructure.Contracts.Auth.OAuth;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
-using Xunit;
 
 namespace Backend.Tests.Auth;
 
 public class GoogleAuthUseCaseTests
 {
     [Fact]
-    public async Task ExternalCreateProfileUseCase_WhenProfileTypeNotSpecified_CreatesCandidateProfileByDefault()
-    {
-        // Arrange
-        var profileRepository = Substitute.For<IProfileRepository>();
-        var useCase = new ExternalCreateProfileUseCase(profileRepository);
-
-        var request = new ExternalCreateProfileRequest(
-            Guid.NewGuid(),
-            null, // No profile type specified
-            "Carlos",
-            "Perez",
-            "https://lh3.googleusercontent.com/avatar.png"
-        );
-
-        // Act
-        var createdProfile = await useCase.ExecuteAsync(request);
-
-        // Assert
-        Assert.NotNull(createdProfile);
-        Assert.NotNull(createdProfile.CandidateProfile);
-        Assert.Null(createdProfile.CompanyProfile);
-        Assert.Equal("Carlos", createdProfile.CandidateProfile.FirstName);
-        Assert.Equal("Perez", createdProfile.CandidateProfile.LastName);
-        Assert.Equal("https://lh3.googleusercontent.com/avatar.png", createdProfile.ProfilePicture);
-        await profileRepository.Received(1).CreateAsync(Arg.Any<Profile>());
-    }
-
-    [Fact]
     public async Task ExternalCreateProfileUseCase_WhenProfileTypeIsCompany_CreatesCompanyProfileWithValidName()
     {
         // Arrange
         var profileRepository = Substitute.For<IProfileRepository>();
-        var useCase = new ExternalCreateProfileUseCase(profileRepository);
+        var useCase = new CreateProfileUseCase(profileRepository);
 
-        var request = new ExternalCreateProfileRequest(
-            Guid.NewGuid(),
-            ProfileType.Company,
-            "Tech",
-            "Corp",
-            "https://lh3.googleusercontent.com/company.png"
-        );
+        var request = new CreateProfileRequest(Guid.NewGuid(), ProfileType.Company);
 
         // Act
         var createdProfile = await useCase.ExecuteAsync(request);
@@ -80,12 +45,12 @@ public class GoogleAuthUseCaseTests
         var profileId = Guid.NewGuid();
 
         // Act
-        var response = UserResponseMapper.ToResponse(user, "Candidate", profileId);
+        var response = UserResponseMapper.ToData(user, ProfileType.Candidate, profileId);
 
         // Assert
         Assert.Equal(user.Id, response.Id);
         Assert.Equal("user@gmail.com", response.Email);
-        Assert.Equal("Candidate", response.ProfileType);
+        Assert.Equal(ProfileType.Candidate, response.ProfileType);
         Assert.Equal(profileId, response.ProfileId);
     }
 
@@ -128,7 +93,7 @@ public class GoogleAuthUseCaseTests
 
         var userId = Guid.NewGuid();
         var googleAvatarUrl = "https://lh3.googleusercontent.com/a/random-avatar";
-        var profile = new Profile(userId, null, null, googleAvatarUrl, null, null);
+        var profile = new Profile(userId, googleAvatarUrl);
 
         profileRepository.GetByUserIdAsync(userId).Returns(profile);
 

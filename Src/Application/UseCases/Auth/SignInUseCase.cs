@@ -3,6 +3,7 @@ using Backend.Src.Application.Dtos.Requests.Auth;
 using Backend.Src.Application.Dtos.Responses.Auth;
 using Backend.Src.Application.Mappers.Auth;
 using Backend.Src.Domain.Exceptions.Auth;
+using Backend.Src.Domain.Exceptions.Profiles;
 using Backend.Src.Domain.Ports.Auth;
 using Backend.Src.Domain.Repositories.Auth;
 using Backend.Src.Domain.Repositories.Profiles;
@@ -34,16 +35,13 @@ public class SignInUseCase(
             refreshToken.Expiration
         );
 
-        var profile = await profileRepository.GetByUserIdAsync(user.Id);
-        string? profileType = null;
-        Guid? profileId = profile?.Id;
-
-        if (profile?.CandidateProfile is not null)
-            profileType = ProfileType.Candidate.ToString();
-        else if (profile?.CompanyProfile is not null)
-            profileType = ProfileType.Company.ToString();
-
-        var userResponse = UserResponseMapper.ToResponse(user, profileType, profileId);
+        var profile = await profileRepository.GetByUserIdAsync(user.Id)
+            ?? throw new ProfileNotFoundException(user.Id);
+        ProfileType profileType = ProfileType.Candidate;
+        Guid profileId = profile.Id;
+        if (profile?.CompanyProfile is not null)
+            profileType = ProfileType.Company;
+        var userResponse = UserResponseMapper.ToData(user, profileType, profileId);
         var response = new AuthenticationResponse(
             userResponse,
             accessToken,

@@ -13,15 +13,13 @@ namespace Backend.Src.Application.UseCases.Auth;
 
 public class ExternalSignUpUseCase(
     IUserRepository userRepository,
-    ExternalCreateProfileUseCase bootstrapProfileUseCase,
+    CreateProfileUseCase bootstrapProfileUseCase,
     IJwtPort jwtService,
     IRefreshTokenRepository refreshTokenRepository
 )
 {
-    public async Task<AuthenticationResponse?> ExecuteAsync(ExternalUserIdentity userIdentity, ProfileType? profileType = null)
+    public async Task<AuthenticationResponse?> ExecuteAsync(ExternalUserIdentity userIdentity, ProfileType profileType)
     {
-        var effectiveProfileType = profileType ?? ProfileType.Candidate;
-
         var user = new User(
             userIdentity.Email,
             userIdentity.IsEmailVerified,
@@ -29,15 +27,8 @@ public class ExternalSignUpUseCase(
         );
         await userRepository.CreateAsync(user);
 
-        var profile = await bootstrapProfileUseCase.ExecuteAsync(
-            new ExternalCreateProfileRequest(
-                user.Id,
-                effectiveProfileType,
-                userIdentity.FirstName ?? string.Empty,
-                userIdentity.LastName ?? string.Empty,
-                userIdentity.PictureUrl ?? string.Empty
-            )
-        );
+        var createProfileRequest = new CreateProfileRequest(user.Id, profileType);
+        var profile = await bootstrapProfileUseCase.ExecuteAsync(createProfileRequest);
 
         var accessToken = jwtService.GenerateAccessToken(user);
         var refreshToken = jwtService.GenerateRefreshToken(user.Id);
@@ -47,17 +38,18 @@ public class ExternalSignUpUseCase(
             refreshToken.Expiration
         );
 
-        var userResponse = UserResponseMapper.ToResponse(user, effectiveProfileType.ToString(), profile.Id);
+        var userData = UserResponseMapper.ToData(user, profileType, profile.Id);
+        var suggestedProfileData = new SuggestedProfileData(
+            userIdentity.FirstName,
+            userIdentity.LastName,
+            userIdentity.PictureUrl
+        );
         var response = new AuthenticationResponse(
-            userResponse,
+            userData,
             accessToken,
             refreshToken.Token,
             1800,
-            new SuggestedProfileData(
-                userIdentity.FirstName,
-                userIdentity.LastName,
-                userIdentity.PictureUrl
-            )
+            suggestedProfileData
         );
         return response;
     }

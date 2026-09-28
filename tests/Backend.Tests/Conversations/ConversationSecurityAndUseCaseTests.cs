@@ -1,15 +1,11 @@
-using Backend.Src.Application.Dtos.Requests.Conversations;
 using Backend.Src.Application.UseCases.Conversations;
 using Backend.Src.Domain.Entities.Conversations;
-using Backend.Src.Domain.Entities.Jobs;
 using Backend.Src.Domain.Entities.Profiles;
 using Backend.Src.Domain.Exceptions.Conversations;
 using Backend.Src.Domain.Repositories.Conversations;
 using Backend.Src.Domain.Repositories.Jobs;
 using Backend.Src.Domain.Repositories.Profiles;
-using Backend.Src.Domain.ValueObjects.Jobs;
 using NSubstitute;
-using Xunit;
 
 namespace Backend.Tests.Conversations;
 

@@ -31,22 +31,16 @@ public class ProfileMappingAndUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Desarrollador Full Stack",
             "150101",
-            "profiles/avatar.png",
             "999888777",
             [new Skill("C#"), new Skill("React")]
         );
 
-        var candidate = new CandidateProfile(
-            profile.Id,
-            profile,
-            "Mariana",
-            "Ana",
-            "12345678"
-        );
+        var candidate = new CandidateProfile(profile.Id, profile);
+        candidate.Update("Mariana", "Ana", "12345678");
 
         var languages = new List<LanguageKnown>
         {
@@ -118,18 +112,19 @@ public class ProfileMappingAndUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Empresa de Tecnología",
             "150101",
-            null,
             "999111222",
             null
         );
 
         var company = new CompanyProfile(
             profile.Id,
-            profile,
+            profile
+        );
+        company.Update(
             "Tech Solutions SAC",
             "Tecnología",
             "20123456789",
@@ -164,18 +159,15 @@ public class ProfileMappingAndUseCaseTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Junior Dev",
             "150101",
-            null,
             "999000111",
             []
         );
-
-        var candidate = new CandidateProfile(
-            profile.Id,
-            profile,
+        var candidate = new CandidateProfile(profile.Id, profile);
+        candidate.Update(
             "Carlos",
             "Gomez",
             "87654321"
@@ -202,18 +194,15 @@ public class ProfileMappingAndUseCaseTests
         var profileId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var profile = new Profile(
-            userId,
+        var profile = new Profile(userId);
+        profile.Update(
             "Perfil Profesional",
             "150101",
-            null,
             "999999999",
             [new Skill("Excel"), new Skill("Atención al cliente")]
         );
-
-        var candidate = new CandidateProfile(
-            profileId,
-            profile,
+        var candidate = new CandidateProfile(profileId,profile);
+        candidate.Update(
             "Mariana",
             "Ana",
             null
@@ -362,8 +351,14 @@ public class ProfileMappingAndUseCaseTests
     [Fact]
     public void CompanyProfile_Update_WithValidRuc_UpdatesRucAndResetsVerification()
     {
-        var profile = new Profile(Guid.NewGuid(), "Desc", "150101", null, "999888777", null);
-        var company = new CompanyProfile(profile.Id, profile, "Tech SAC", "IT", "20123456789", "https://tech.pe", "11-50");
+        var profile = new Profile(Guid.NewGuid());
+        profile.Update(
+            "Desc",
+            "150101",
+            "999888777",
+            null
+        );
+        var company = new CompanyProfile(profile.Id, profile);
         company.VerifyCompany(Guid.NewGuid());
         Assert.True(company.IsVerified);
 
@@ -377,8 +372,14 @@ public class ProfileMappingAndUseCaseTests
     [Fact]
     public void CompanyProfile_Update_WithNullOrWhitespaceRuc_SetsRucToNull()
     {
-        var profile = new Profile(Guid.NewGuid(), "Desc", "150101", null, "999888777", null);
-        var company = new CompanyProfile(profile.Id, profile, "Tech SAC", "IT", "20123456789", "https://tech.pe", "11-50");
+        var profile = new Profile(Guid.NewGuid());
+        profile.Update(
+            "Desc",
+            "150101",
+            "999888777",
+            null
+        );
+        var company = new CompanyProfile(profile.Id, profile);
 
         company.Update("Tech SAC", "IT", "https://tech.pe", "11-50", "   ");
 
@@ -414,8 +415,8 @@ public class ProfileMappingAndUseCaseTests
         var profileRepository = Substitute.For<IProfileRepository>();
         profileRepository.GetByUserIdForUpdateAsync(Arg.Any<Guid>()).Returns((Profile?)null);
 
-        var useCase = new ExternalCreateProfileUseCase(profileRepository);
-        var result = await useCase.ExecuteAsync(new ExternalCreateProfileRequest(Guid.NewGuid(), ProfileType.Company, "Acme", "Corp", ""));
+        var useCase = new CreateProfileUseCase(profileRepository);
+        var result = await useCase.ExecuteAsync(new CreateProfileRequest(Guid.NewGuid(), ProfileType.Company));
 
         Assert.NotNull(result.CompanyProfile);
         Assert.Null(result.CompanyProfile.Ruc);
@@ -427,8 +428,8 @@ public class ProfileMappingAndUseCaseTests
         var profileRepository = Substitute.For<IProfileRepository>();
         profileRepository.GetByUserIdForUpdateAsync(Arg.Any<Guid>()).Returns((Profile?)null);
 
-        var useCase = new ExternalCreateProfileUseCase(profileRepository);
-        var result = await useCase.ExecuteAsync(new ExternalCreateProfileRequest(Guid.NewGuid(), ProfileType.Candidate, "Juan", "Perez", ""));
+        var useCase = new CreateProfileUseCase(profileRepository);
+        var result = await useCase.ExecuteAsync(new CreateProfileRequest(Guid.NewGuid(), ProfileType.Candidate));
 
         Assert.NotNull(result.CandidateProfile);
         Assert.Null(result.CandidateProfile.Dni);

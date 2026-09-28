@@ -27,17 +27,11 @@ public class CandidateProfile
     public CandidateProfile
     (
         Guid profileId,
-        Profile profile,
-        string firstName,
-        string lastName,
-        string? dni
+        Profile profile
     )
     {
         ProfileId = profileId;
         Profile = profile;
-        FirstName = firstName;
-        LastName = lastName;
-        Dni = string.IsNullOrWhiteSpace(dni) ? null : dni.Trim();
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }

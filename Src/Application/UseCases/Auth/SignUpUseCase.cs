@@ -1,4 +1,3 @@
-using Backend.Src.Application.Dtos.Enums.Profiles;
 using Backend.Src.Application.Dtos.Requests.Auth;
 using Backend.Src.Application.Dtos.Requests.Profiles;
 using Backend.Src.Application.Dtos.Responses.Auth;
@@ -18,7 +17,7 @@ public class SignUpUseCase(
     IJwtPort jwtService,
     IRefreshTokenRepository refreshTokenRepository,
     IValidator<SignUpRequest> validator,
-    ExternalCreateProfileUseCase bootstrapProfileUseCase
+    CreateProfileUseCase createProfileUseCase
 )
 {
     public async Task<AuthenticationResponse> ExecuteAsync(SignUpRequest request)
@@ -36,34 +35,32 @@ public class SignUpUseCase(
             false, //IsEmailVerified
             passwordHash
         );
+        try
+        {
+            await userRepository.CreateAsync(user);
 
-        await userRepository.CreateAsync(user);
+            var createProfileRequest = new CreateProfileRequest(user.Id, request.ProfileType);
+            var profile = await createProfileUseCase.ExecuteAsync(createProfileRequest);
 
-        var effectiveProfileType = request.ProfileType ?? ProfileType.Candidate;
-        var profile = await bootstrapProfileUseCase.ExecuteAsync(
-            new ExternalCreateProfileRequest(
+            var accessToken = jwtService.GenerateAccessToken(user);
+            var refreshToken = jwtService.GenerateRefreshToken(user.Id);
+            await refreshTokenRepository.SaveAsync(
                 user.Id,
-                effectiveProfileType,
-                request.FirstName ?? string.Empty,
-                request.LastName ?? string.Empty,
-                string.Empty
-            )
-        );
+                refreshToken.Jti,
+                refreshToken.Expiration
+            );
 
-        var accessToken = jwtService.GenerateAccessToken(user);
-        var refreshToken = jwtService.GenerateRefreshToken(user.Id);
-        await refreshTokenRepository.SaveAsync(
-            user.Id,
-            refreshToken.Jti,
-            refreshToken.Expiration
-        );
-
-        var userResponse = UserResponseMapper.ToResponse(user, effectiveProfileType.ToString(), profile.Id);
-        return new AuthenticationResponse(
-            userResponse,
-            accessToken,
-            refreshToken.Token,
-            1800
-        );
+            var userResponse = UserResponseMapper.ToData(user, request.ProfileType, profile.Id);
+            return new AuthenticationResponse(
+                userResponse,
+                accessToken,
+                refreshToken.Token,
+                1800
+            );   
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"An error ocurred while creating user and profile: {e}");
+        }
     }
 }

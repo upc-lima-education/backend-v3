@@ -5,7 +5,6 @@ using Backend.Src.Domain.Repositories.Curriculums;
 using Backend.Src.Domain.Repositories.Profiles;
 using Backend.Src.Domain.ValueObjects.Curriculums;
 using NSubstitute;
-using Xunit;
 
 namespace Backend.Tests.Curriculums;
 
@@ -35,8 +34,8 @@ public class CvProcessingStatusTests
         var cvRepository = Substitute.For<ICvRepository>();
         var profileRepository = Substitute.For<IProfileRepository>();
         var userId = Guid.NewGuid();
-        var profile = new Profile(userId, "Candidate", "150101", null, "999888777", []);
-        profile.CandidateProfile = new CandidateProfile(profile.Id, profile, "Ana", "Torres", null);
+        var profile = new Profile(userId);
+        profile.CandidateProfile = new CandidateProfile(profile.Id, profile);
         var cv = new Cv(profile.Id, "CV Ana", false);
         cv.MarkProcessing();
 

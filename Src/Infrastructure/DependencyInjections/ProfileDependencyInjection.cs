@@ -34,7 +34,7 @@ public static class ProfileDependencyInjection
         services.AddScoped<IValidator<UpdateCandidateProfileWorkExperiencesRequest>, UpdateCandidateProfileWorkExperiencesValidator>();
 
         //Use cases
-        services.AddScoped<ExternalCreateProfileUseCase>();
+        services.AddScoped<CreateProfileUseCase>();
         services.AddScoped<CreateCandidateProfileUseCase>();
         services.AddScoped<CreateOrganizationProfileUseCase>();
         services.AddScoped<GetProfileByProfileIdUseCase>();

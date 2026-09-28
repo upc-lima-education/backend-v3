@@ -1,7 +1,5 @@
-using Backend.Src.Application.Dtos.Requests.Profiles;
 using Backend.Src.Application.Dtos.Data.Profiles;
 using Backend.Src.Domain.Entities.Profiles;
-using Backend.Src.Domain.Entities.Skills;
 using Backend.Src.Application.Dtos.Responses.Profiles;
 
 namespace Backend.Src.Application.Mappers.Profiles;
@@ -58,30 +56,6 @@ public static class ProfileMapper
             //Traceability
             profile.CreatedAt,
             profile.UpdatedAt
-        );
-    }
-
-    public static Profile ToEntity(CreateCandidateProfileRequest request, Guid userId, List<Skill> skills)
-    {
-        return new Profile(
-            userId,
-            request.Description,
-            request.Ubigeo,
-            null, //Profile Picture
-            request.PhoneNumber,
-            skills
-        );
-    }
-
-    public static Profile ToEntity(CreateCompanyProfileRequest request, Guid userId)
-    {
-        return new Profile(
-            userId,
-            request.Description,
-            request.Ubigeo,
-            null, //Profile Picture
-            request.PhoneNumber,
-            null //Skills
         );
     }
 }

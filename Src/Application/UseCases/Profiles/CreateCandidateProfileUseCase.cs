@@ -43,9 +43,8 @@ public class CreateCandidateProfileUseCase(
                 skills
             );
         }
-        else profile = ProfileMapper.ToEntity(request, userId, skills);
-        profile.CandidateProfile = CandidateProfileMapper.ToEntity(request, profile);
-
+        else profile = new Profile(userId);
+        profile.CandidateProfile = new CandidateProfile(profile.Id, profile);
         if (request.ProfilePicture is not null)
         {
             var extension = Path.GetExtension(request.ProfilePicture.File.FileName).ToLowerInvariant();

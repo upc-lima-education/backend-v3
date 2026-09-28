@@ -38,10 +38,8 @@ public class CreateOrganizationProfileUseCase(
                 null
             );
         }
-        else profile = ProfileMapper.ToEntity(request, userId);
-
-        profile.CompanyProfile = CompanyProfileMapper.ToEntity(request, profile);
-
+        else profile = new Profile(userId);
+        profile.CompanyProfile = new CompanyProfile(profile.Id, profile);
         if (request.ProfilePicture is not null)
         {
             var extension = Path.GetExtension(request.ProfilePicture.File.FileName).ToLowerInvariant();

@@ -23,21 +23,12 @@ public class CompanyProfile
 
     public CompanyProfile(
         Guid profileId,
-        Profile profile,
-        string companyName,
-        string? sector,
-        string? ruc,
-        string? website,
-        string? companySize
+        Profile profile
     )
     {
         ProfileId = profileId;
         Profile = profile;
-        CompanyName = companyName;
-        Sector = sector;
-        Ruc = string.IsNullOrWhiteSpace(ruc) ? null : ruc.Trim();
-        Website = website;
-        CompanySize = companySize;
+        CompanyName = string.Empty;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
